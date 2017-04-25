@@ -113,8 +113,6 @@ DF <- NULL
 DF <- data.frame(names,hoikushi_danjo,d_hoikushi)
 head(DF)
 
-hoikushi_danjo$dammy_hikushi_H23 <- 
-
 #保育士ダミー
 d_hoikushi <- NULL
 for(i in 1:129){
@@ -157,4 +155,27 @@ d_kango_t <- dummy_kaigo * dummy_t
 d_kango_t
 
 result1 <- summary(lm(kyuuyos ~ ages + years + dummy_hoikushi + dummy_kaigo + dummy_t + d_hoiku_t + d_kango_t,data = DF_danjo))
-result2 <-summary(lm(kyuuyos ~ ages + years + dummy_hoikushi + dummy_kaigo + dummy_t + d_hoiku_t + d_kango_t,data = DF_danjo))
+result2 <-summary(lm(labors ~ ages + years + dummy_hoikushi + dummy_kaigo + dummy_t + d_hoiku_t + d_kango_t,data = DF_danjo))
+
+#=====================================================
+#女性バージョン
+#=====================================================
+
+head(hoikushi_josei)
+
+kyuuyos_f <-  c(hoikushi_josei$kyuuyo_H23,hoikushi_josei$kyuuyo_H28)
+labors_f <- c(hoikushi_josei$labor_H23,hoikushi_josei$labor_H28)
+ages_f <- c(hoikushi_josei$age_H23,hoikushi_josei$age_H28)
+years_f <- c(hoikushi_josei$year_H23,hoikushi_josei$year_H28)
+
+head(names)
+
+DF_josei <- NULL
+DF_josei <- data.frame(kyuuyos,labors,ages,years,dummy_hoikushi,dummy_kaigo,dummy_t,d_hoiku_t,d_kango_t)
+DF_josei <- DF_josei[complete.cases(DF_josei),]
+head(DF_josei)
+
+result3 <- summary(lm(kyuuyos_f ~ ages_f + years_f + dummy_hoikushi + dummy_kaigo + dummy_t + d_hoiku_t + d_kango_t,data = DF_josei))
+result4 <-summary(lm(labors_f ~ ages_f + years_f + dummy_hoikushi + dummy_kaigo + dummy_t + d_hoiku_t + d_kango_t,data = DF_josei))
+
+
