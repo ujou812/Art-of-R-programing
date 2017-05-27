@@ -1,10 +1,12 @@
 #==================================================================
 #[女] せめてインスタンス化を
+#S3クラスの関数
 #==================================================================
 
 #女性のデータベースをインポートし初期化
 
 shokika <- { 
+  #データのインポート
   josei_h28 <- read.csv("~/Desktop/R/josei_csv/josei_h28.csv", fileEncoding="CP932", header=TRUE, quote="\"")
   josei_h27 <- read.csv("~/Desktop/R/josei_csv/josei_h27.csv", fileEncoding="CP932", header=TRUE, quote="\"")
   josei_h26 <- read.csv("~/Desktop/R/josei_csv/josei_h26.csv", fileEncoding="CP932", header=TRUE, quote="\"")
@@ -13,8 +15,8 @@ shokika <- {
   josei_h23 <- read.csv("~/Desktop/R/josei_csv/josei_h23.csv", fileEncoding="CP932", header=TRUE, quote="\"")
   josei_h22 <- read.csv("~/Desktop/R/josei_csv/josei_h22.csv", fileEncoding="CP932", header=TRUE, quote="\"")
   josei_h21 <- read.csv("~/Desktop/R/josei_csv/josei_h21.csv", fileEncoding="CP932", header=TRUE, quote="\"")
-  View(josei_h22)
-  head(josei_h28,3)
+  #View(josei_h22)
+  #head(josei_h28,3)
   
   #CPI(消費者物価指数)[2015年基準]
   
@@ -27,20 +29,19 @@ shokika <- {
   cpi_h27 <- 100 / 100
   cpi_h28 <- 99.9 /100
   
-  #==================================================================
-  #[女] データをプールしてDD分析　before[21:24],after[25:28]
-  #==================================================================
-  
+  #抜け値にNA値を代入
   #before
   josei_h21[c(118,120),] <- NA  
   josei_h22[c(28,112,125),] <- NA
   josei_h23[c(112,125),] <- NA
   josei_h24[64,] <- NA
-  
   #after
   josei_h25[c(122,125), ] <- NA
   josei_h26[c(64,112,122),] <- NA
   josei_h28[c(118,125),] <- NA
+  
+  #胸が痛い労働者数操作[労働者数が少なすぎる値を省くことでlogをとることができる]
+  #df$labor[df$labor ==0] <- NA
   
   #給与実質化 [実質]　= [名目] / CPI
   
@@ -59,7 +60,7 @@ shokika <- {
 
 #befor/afrer期間をベクトルで定義[H21~28]
 start <- c(21:23)
-end <- c(24:28)
+end <- c(26:28)
 
 #みたい年度を変数に入れてインスタンス化
 
@@ -79,6 +80,22 @@ instance <- function(start,end){
     else dummy_t <- c(dummy_t,1)
   }
   #str(dummy_t)
+  
+  #保育士ダミー
+  d_hoiku <- NULL
+  for(i in 1:129){
+    if(i == 21) d_hoiku <- c(d_hoiku,1)
+    else d_hoiku <- c(d_hoiku,0)
+  }
+  #d_hoiku
+  
+  #介護職ダミー
+  d_kaigo <- NULL
+  for(i in 1:129){
+    if(i >= 22 && i <= 24) d_kaigo <- c(d_kaigo,1)
+    else d_kaigo <- c(d_kaigo,0)
+  }
+  #d_kaigo
   
   d_hoikushi <- NULL
   for(i in 1:n){ d_hoikushi <- c(d_hoikushi,d_hoiku)}
@@ -116,11 +133,12 @@ instance <- function(start,end){
   res_salary1 <- lm(log(salary.zangyo) ~ year + time + trend + trend2 + hoiku + kaigo + cross1 + cross2, data=df)
   res_salary2 <- lm(log(salary) ~  year + time +trend + trend2 + hoiku + kaigo + cross1 + cross2, data=df)
   res_bonus <- lm(bonus ~   year + time + trend + trend2 + hoiku + kaigo + cross1 + cross2, data=df)
-  res_labor <- lm(labor ~  year + time + trend + trend2 + hoiku + kaigo + cross1 + cross2, data=df)
+  res_labor <-  lm(labor ~  year + time + trend + trend2 + hoiku + kaigo + cross1 + cross2, data=df)
   result <- list(summary(res_salary1),summary(res_salary2),summary(res_bonus),summary(res_labor))
-  
+  #res_labor <- lm(log(labor) ~  year + time + trend + trend2 + hoiku + kaigo + cross1 + cross2, data=df)
+  #summary(res_labor)
   return(result)
-  
 }
 
+#実行
 instance(start,end)
